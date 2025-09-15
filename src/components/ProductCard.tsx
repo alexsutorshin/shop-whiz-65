@@ -29,7 +29,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   return (
-    <Card className="group cursor-pointer bg-gradient-card border-0 shadow-card hover:shadow-hover transition-all duration-300 hover:scale-105">
+    <Card 
+      className="group cursor-pointer bg-gradient-card border-0 shadow-card hover:shadow-hover transition-all duration-300 hover:scale-105"
+      onClick={handleViewProduct}
+    >
       <CardContent className="p-0">
         <div className="relative overflow-hidden rounded-t-lg">
           <img
