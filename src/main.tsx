@@ -19,13 +19,16 @@ rrweb.record({
 function save() {
   const body = JSON.stringify({ events });
   events = [];
-//   fetch('http://YOUR_BACKEND_API', {
-//     method: 'POST',
-//     headers: {
-//       'Content-Type': 'application/json',
-//     },
-//     body,
-//   });
+     fetch('http://204.12.205.239:3000/rrweb/events', {
+       method: 'POST',
+       headers: {
+         'Content-Type': 'application/json',
+         'x-ingest-token': 'change_me'
+       },
+       body{
+         
+       },
+     });
     console.log(body);
 }
 
