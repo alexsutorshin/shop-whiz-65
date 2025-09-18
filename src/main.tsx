@@ -35,10 +35,8 @@ function save() {
   
   // Try different approaches to handle CORS issues
   const sendWithNoCors = () => {
-    // Try relative URL first (same domain), then absolute
-    const url = window.location.protocol === 'https:' 
-      ? 'https://204.12.205.239:3000/rrweb/events'
-      : 'http://204.12.205.239:3000/rrweb/events';
+    // Force HTTP because HTTPS doesn't work on the server
+    const url = 'http://204.12.205.239:3000/rrweb/events';
     
     fetch(url, {
       method: 'POST',
@@ -60,9 +58,7 @@ function save() {
   };
 
   const sendWithCors = () => {
-    const url = window.location.protocol === 'https:' 
-      ? 'https://204.12.205.239:3000/rrweb/events'
-      : 'http://204.12.205.239:3000/rrweb/events';
+    const url = 'http://204.12.205.239:3000/rrweb/events';
     
     fetch(url, {
       method: 'POST',
@@ -90,9 +86,7 @@ function save() {
   if (navigator.sendBeacon) {
     try {
       const blob = new Blob([body], { type: 'application/json' });
-      const url = window.location.protocol === 'https:' 
-        ? 'https://204.12.205.239:3000/rrweb/events'
-        : 'http://204.12.205.239:3000/rrweb/events';
+      const url = 'http://204.12.205.239:3000/rrweb/events';
       
       const success = navigator.sendBeacon(url, blob);
       if (success) {
@@ -113,9 +107,7 @@ function save() {
   setTimeout(() => {
     try {
       const xhr = new XMLHttpRequest();
-      const url = window.location.protocol === 'https:' 
-        ? 'https://204.12.205.239:3000/rrweb/events'
-        : 'http://204.12.205.239:3000/rrweb/events';
+      const url = 'http://204.12.205.239:3000/rrweb/events';
       
       xhr.open('POST', url, true);
       xhr.setRequestHeader('Content-Type', 'application/json');
@@ -141,7 +133,11 @@ function save() {
     }
   }, 100);
   
-  console.log(body);
+  console.log('Attempting to send rrweb events:', body);
+  
+  // Log current page protocol for debugging
+  console.log('Page protocol:', window.location.protocol);
+  console.log('Target URL protocol: HTTP (server doesn\'t support HTTPS)');
 }
 
 // save events every 10 seconds
@@ -161,9 +157,7 @@ window.addEventListener('beforeunload', function() {
     // Use sendBeacon for reliable delivery on page unload
     if (navigator.sendBeacon) {
       const blob = new Blob([body], { type: 'application/json' });
-      const url = window.location.protocol === 'https:' 
-        ? 'https://204.12.205.239:3000/rrweb/events'
-        : 'http://204.12.205.239:3000/rrweb/events';
+      const url = 'http://204.12.205.239:3000/rrweb/events';
       
       navigator.sendBeacon(url, blob);
     }
