@@ -35,7 +35,7 @@ function save() {
   
   // Try different approaches to handle CORS issues
   const sendWithNoCors = () => {
-    fetch('https://204.12.205.239:3000/rrweb/events', {
+    fetch('http://204.12.205.239:3000/rrweb/events', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ function save() {
   };
 
   const sendWithCors = () => {
-    fetch('https://204.12.205.239:3000/rrweb/events', {
+    fetch('http://204.12.205.239:3000/rrweb/events', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -84,7 +84,7 @@ function save() {
   setTimeout(() => {
     try {
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', 'https://204.12.205.239:3000/rrweb/events', true);
+      xhr.open('POST', 'http://204.12.205.239:3000/rrweb/events', true);
       xhr.setRequestHeader('Content-Type', 'application/json');
       xhr.setRequestHeader('x-ingest-token', 'change_me');
       
