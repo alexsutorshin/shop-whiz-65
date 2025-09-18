@@ -35,7 +35,12 @@ function save() {
   
   // Try different approaches to handle CORS issues
   const sendWithNoCors = () => {
-    fetch('http://204.12.205.239:3000/rrweb/events', {
+    // Try relative URL first (same domain), then absolute
+    const url = window.location.protocol === 'https:' 
+      ? 'https://204.12.205.239:3000/rrweb/events'
+      : 'http://204.12.205.239:3000/rrweb/events';
+    
+    fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -55,7 +60,11 @@ function save() {
   };
 
   const sendWithCors = () => {
-    fetch('http://204.12.205.239:3000/rrweb/events', {
+    const url = window.location.protocol === 'https:' 
+      ? 'https://204.12.205.239:3000/rrweb/events'
+      : 'http://204.12.205.239:3000/rrweb/events';
+    
+    fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -77,6 +86,26 @@ function save() {
     });
   };
 
+  // Try sendBeacon first (most reliable for cross-origin and mixed content)
+  if (navigator.sendBeacon) {
+    try {
+      const blob = new Blob([body], { type: 'application/json' });
+      const url = window.location.protocol === 'https:' 
+        ? 'https://204.12.205.239:3000/rrweb/events'
+        : 'http://204.12.205.239:3000/rrweb/events';
+      
+      const success = navigator.sendBeacon(url, blob);
+      if (success) {
+        console.log('Successfully sent rrweb events via sendBeacon');
+        return; // Exit early if successful
+      } else {
+        console.warn('sendBeacon failed, trying other methods');
+      }
+    } catch (error) {
+      console.warn('sendBeacon error:', error);
+    }
+  }
+  
   // Try no-cors first, then fallback to cors, then XMLHttpRequest
   sendWithNoCors();
   
@@ -84,7 +113,11 @@ function save() {
   setTimeout(() => {
     try {
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', 'http://204.12.205.239:3000/rrweb/events', true);
+      const url = window.location.protocol === 'https:' 
+        ? 'https://204.12.205.239:3000/rrweb/events'
+        : 'http://204.12.205.239:3000/rrweb/events';
+      
+      xhr.open('POST', url, true);
       xhr.setRequestHeader('Content-Type', 'application/json');
       xhr.setRequestHeader('x-ingest-token', 'change_me');
       
@@ -113,3 +146,33 @@ function save() {
 
 // save events every 10 seconds
 setInterval(save, 10 * 1000);
+
+// Also save events when user is about to leave the page
+window.addEventListener('beforeunload', function() {
+  if (events.length > 0) {
+    const body = JSON.stringify({
+      sessionId: sessionId,
+      metadata: {
+        userAgent: navigator.userAgent
+      },
+      events: events
+    });
+    
+    // Use sendBeacon for reliable delivery on page unload
+    if (navigator.sendBeacon) {
+      const blob = new Blob([body], { type: 'application/json' });
+      const url = window.location.protocol === 'https:' 
+        ? 'https://204.12.205.239:3000/rrweb/events'
+        : 'http://204.12.205.239:3000/rrweb/events';
+      
+      navigator.sendBeacon(url, blob);
+    }
+  }
+});
+
+// Save events when page becomes hidden (user switches tabs, minimizes, etc.)
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'hidden' && events.length > 0) {
+    save();
+  }
+});
