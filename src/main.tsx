@@ -33,7 +33,7 @@ function save() {
   
   events = []; // Reset events array after sending
   
-  fetch('http://204.12.205.239:3000/rrweb/events', {
+  fetch('https://204.12.205.239:3000/rrweb/events', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
