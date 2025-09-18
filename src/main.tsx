@@ -35,8 +35,8 @@ function save() {
   
   // Try different approaches to handle CORS issues
   const sendWithNoCors = () => {
-    // Force HTTP because HTTPS doesn't work on the server
-    const url = 'http://204.12.205.239:3000/rrweb/events';
+    // Use HTTPS now that server supports it
+    const url = 'https://204.12.205.239:3443/rrweb/events';
     
     fetch(url, {
       method: 'POST',
@@ -58,7 +58,7 @@ function save() {
   };
 
   const sendWithCors = () => {
-    const url = 'http://204.12.205.239:3000/rrweb/events';
+    const url = 'https://204.12.205.239:3443/rrweb/events';
     
     fetch(url, {
       method: 'POST',
@@ -86,7 +86,7 @@ function save() {
   if (navigator.sendBeacon) {
     try {
       const blob = new Blob([body], { type: 'application/json' });
-      const url = 'http://204.12.205.239:3000/rrweb/events';
+      const url = 'https://204.12.205.239:3443/rrweb/events';
       
       const success = navigator.sendBeacon(url, blob);
       if (success) {
@@ -107,7 +107,7 @@ function save() {
   setTimeout(() => {
     try {
       const xhr = new XMLHttpRequest();
-      const url = 'http://204.12.205.239:3000/rrweb/events';
+      const url = 'https://204.12.205.239:3443/rrweb/events';
       
       xhr.open('POST', url, true);
       xhr.setRequestHeader('Content-Type', 'application/json');
@@ -137,7 +137,7 @@ function save() {
   
   // Log current page protocol for debugging
   console.log('Page protocol:', window.location.protocol);
-  console.log('Target URL protocol: HTTP (server doesn\'t support HTTPS)');
+  console.log('Target URL protocol: HTTPS (server now supports modern TLS)');
 }
 
 // save events every 10 seconds
@@ -157,7 +157,7 @@ window.addEventListener('beforeunload', function() {
     // Use sendBeacon for reliable delivery on page unload
     if (navigator.sendBeacon) {
       const blob = new Blob([body], { type: 'application/json' });
-      const url = 'http://204.12.205.239:3000/rrweb/events';
+      const url = 'https://204.12.205.239:3443/rrweb/events';
       
       navigator.sendBeacon(url, blob);
     }
