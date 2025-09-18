@@ -133,7 +133,7 @@ function save() {
     }
   }, 100);
   
-  console.log('Attempting to send rrweb events:', body);
+  console.log(body);
   
   // Log current page protocol for debugging
   console.log('Page protocol:', window.location.protocol);
