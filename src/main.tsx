@@ -33,26 +33,82 @@ function save() {
   
   events = []; // Reset events array after sending
   
-  fetch('http://204.12.205.239:3000/rrweb/events', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-ingest-token': 'change_me'
-    },
-    body: body,
-  })
-  .then(response => {
-    if (!response.ok) {
-      console.error('Failed to send rrweb events:', response.status, response.statusText);
-    } else {
-      console.log('Successfully sent rrweb events to server');
-    }
-  })
-  .catch(error => {
-    console.error('Error sending rrweb events:', error);
-  });
+  // Try different approaches to handle CORS issues
+  const sendWithNoCors = () => {
+    fetch('https://204.12.205.239:3000/rrweb/events', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-ingest-token': 'change_me'
+      },
+      body: body,
+      mode: 'no-cors', // This bypasses CORS but we won't get response details
+    })
+    .then(() => {
+      console.log('Sent rrweb events (no-cors mode - no response details available)');
+    })
+    .catch(error => {
+      console.error('Error sending rrweb events with no-cors:', error);
+      // Fallback to regular fetch
+      sendWithCors();
+    });
+  };
+
+  const sendWithCors = () => {
+    fetch('https://204.12.205.239:3000/rrweb/events', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-ingest-token': 'change_me'
+      },
+      body: body,
+      mode: 'cors',
+    })
+    .then(response => {
+      if (!response.ok) {
+        console.error('Failed to send rrweb events:', response.status, response.statusText);
+      } else {
+        console.log('Successfully sent rrweb events to server');
+      }
+    })
+    .catch(error => {
+      console.error('Error sending rrweb events:', error);
+      console.log('Request body that failed to send:', body);
+    });
+  };
+
+  // Try no-cors first, then fallback to cors, then XMLHttpRequest
+  sendWithNoCors();
   
-  console.log(body)
+  // Also try XMLHttpRequest as an alternative
+  setTimeout(() => {
+    try {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', 'https://204.12.205.239:3000/rrweb/events', true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.setRequestHeader('x-ingest-token', 'change_me');
+      
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            console.log('Successfully sent rrweb events via XMLHttpRequest');
+          } else {
+            console.warn('XMLHttpRequest failed:', xhr.status, xhr.statusText);
+          }
+        }
+      };
+      
+      xhr.onerror = function() {
+        console.warn('XMLHttpRequest error occurred');
+      };
+      
+      xhr.send(body);
+    } catch (error) {
+      console.warn('XMLHttpRequest failed to initialize:', error);
+    }
+  }, 100);
+  
+  console.log(body);
 }
 
 // save events every 10 seconds
