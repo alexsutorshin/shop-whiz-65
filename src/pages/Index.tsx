@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingBag, Sparkles } from 'lucide-react';
 import phoneImg from '@/assets/phone.jpg';
+import iphoneProMaxImg from '@/assets/iphone-pro-max.jpg';
 import headphonesImg from '@/assets/headphones.jpg';
 import laptopImg from '@/assets/laptop.jpg';
 import watchImg from '@/assets/watch.jpg';
@@ -40,6 +41,14 @@ const products = [
     image: watchImg,
     description: 'Самые прочные и функциональные смарт-часы Apple с титановым корпусом',
     category: 'Умные часы',
+  },
+  {
+    id: '5',
+    name: 'iPhone 15 Pro Max',
+    price: 109990,
+    image: iphoneProMaxImg,
+    description: 'Флагманский iPhone с самым большим дисплеем 6.7", процессором A17 Pro и улучшенной камерой',
+    category: 'Смартфоны',
   },
 ];
 
