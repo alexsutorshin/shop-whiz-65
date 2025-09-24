@@ -16,6 +16,11 @@ rrweb.record({
   emit(event) {
     // push event into the events array
     events.push(event);
+    
+    // Отладочная информация для проверки консольных логов
+    if (event.type === 5) { // 5 = Console event type
+      console.log('Console event recorded:', event);
+    }
   },
   plugins: [
     getRecordConsolePlugin({
@@ -147,9 +152,16 @@ function save() {
     }
   }, 100);
   
+  // Подсчитываем типы событий для отладки
+  const eventTypes = events.reduce((acc, event) => {
+    acc[event.type] = (acc[event.type] || 0) + 1;
+    return acc;
+  }, {});
+  
   console.log('Sending rrweb events to server:', {
     sessionId,
     eventCount: events.length,
+    eventTypes,
     timestamp: new Date().toISOString()
   });
   
@@ -161,6 +173,8 @@ function save() {
   console.info('RRWeb console logging is active');
   console.warn('This is a test warning message');
   console.error('This is a test error message');
+  console.log('Test log message with timestamp:', new Date().toISOString());
+  console.debug('Debug message for testing');
 }
 
 // save events every 10 seconds
