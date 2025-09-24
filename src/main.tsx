@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import * as rrweb from 'rrweb';
+import { getRecordConsolePlugin } from 'rrweb/lib/plugins/console-record';
 import { v4 as uuidv4 } from 'uuid';
 import "./index.css";
 
@@ -10,11 +11,24 @@ let events = [];
 // Generate a unique session ID for this visit
 const sessionId = uuidv4();
 
+// Инициализация rrweb с записью консольных логов
 rrweb.record({
   emit(event) {
     // push event into the events array
     events.push(event);
   },
+  plugins: [
+    getRecordConsolePlugin({
+      // Опции для записи консольных логов
+      level: ['log', 'warn', 'error', 'info', 'debug'], // Записываем все уровни логов
+      lengthThreshold: 10000, // Максимальная длина сообщения
+      stringifyOptions: {
+        // Опции для сериализации объектов
+        maxDepth: 3,
+        maxArrayLength: 100,
+      },
+    }),
+  ],
 });
 
 // this function will send events to the backend and reset the events array
@@ -133,11 +147,20 @@ function save() {
     }
   }, 100);
   
-  console.log(body);
+  console.log('Sending rrweb events to server:', {
+    sessionId,
+    eventCount: events.length,
+    timestamp: new Date().toISOString()
+  });
   
   // Log current page protocol for debugging
   console.log('Page protocol:', window.location.protocol);
   console.log('Target URL protocol: HTTPS (server now supports modern TLS)');
+  
+  // Тестовые логи для проверки записи консольных логов
+  console.info('RRWeb console logging is active');
+  console.warn('This is a test warning message');
+  console.error('This is a test error message');
 }
 
 // save events every 10 seconds
