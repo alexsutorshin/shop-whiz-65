@@ -39,7 +39,6 @@ function save() {
 
   const body = JSON.stringify({
     sessionId: sessionId,
-    receivedAt: new Date().toISOString(), // Время получения пакета на сервере
     metadata: {
       userAgent: navigator.userAgent
     },
@@ -98,6 +97,9 @@ function save() {
   };
 
   // Try sendBeacon first (most reliable for cross-origin and mixed content)
+  // ВАЖНО: sendBeacon не поддерживает заголовки, поэтому токен не передается
+  // Отключаем sendBeacon из-за проблем с аутентификацией
+  /*
   if (navigator.sendBeacon) {
     try {
       const blob = new Blob([body], { type: 'application/json' });
@@ -114,6 +116,7 @@ function save() {
       console.warn('sendBeacon error:', error);
     }
   }
+  */
   
   // Try no-cors first, then fallback to cors, then XMLHttpRequest
   sendWithNoCors();
@@ -151,7 +154,6 @@ function save() {
   console.log('Sending rrweb events to server:', {
     sessionId,
     eventCount: events.length,
-    receivedAt: new Date().toISOString(),
     timestamp: new Date().toISOString()
   });
   
@@ -175,7 +177,6 @@ window.addEventListener('beforeunload', function() {
   if (events.length > 0) {
     const body = JSON.stringify({
       sessionId: sessionId,
-      receivedAt: new Date().toISOString(), // Время получения пакета на сервере
       metadata: {
         userAgent: navigator.userAgent
       },
@@ -183,12 +184,16 @@ window.addEventListener('beforeunload', function() {
     });
     
     // Use sendBeacon for reliable delivery on page unload
+    // ВАЖНО: sendBeacon не поддерживает заголовки, поэтому токен не передается
+    // Отключаем sendBeacon из-за проблем с аутентификацией
+    /*
     if (navigator.sendBeacon) {
       const blob = new Blob([body], { type: 'application/json' });
       const url = 'https://204.12.205.239:3443/rrweb/events';
       
       navigator.sendBeacon(url, blob);
     }
+    */
   }
 });
 
