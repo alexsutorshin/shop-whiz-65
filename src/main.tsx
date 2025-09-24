@@ -39,6 +39,7 @@ function save() {
 
   const body = JSON.stringify({
     sessionId: sessionId,
+    receivedAt: new Date().toISOString(), // Время получения пакета на сервере
     metadata: {
       userAgent: navigator.userAgent
     },
@@ -150,6 +151,7 @@ function save() {
   console.log('Sending rrweb events to server:', {
     sessionId,
     eventCount: events.length,
+    receivedAt: new Date().toISOString(),
     timestamp: new Date().toISOString()
   });
   
@@ -173,6 +175,7 @@ window.addEventListener('beforeunload', function() {
   if (events.length > 0) {
     const body = JSON.stringify({
       sessionId: sessionId,
+      receivedAt: new Date().toISOString(), // Время получения пакета на сервере
       metadata: {
         userAgent: navigator.userAgent
       },
