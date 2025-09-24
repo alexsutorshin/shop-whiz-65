@@ -11,29 +11,24 @@ let events = [];
 // Generate a unique session ID for this visit
 const sessionId = uuidv4();
 
-// Инициализация rrweb с записью консольных логов
+// Инициализация rrweb (временно отключены консольные логи)
 rrweb.record({
   emit(event) {
     // push event into the events array
     events.push(event);
-    
-    // Отладочная информация для проверки консольных логов
-    if (event.type === 5) { // 5 = Console event type
-      console.log('Console event recorded:', event);
-    }
   },
-  plugins: [
-    getRecordConsolePlugin({
-      // Опции для записи консольных логов
-      level: ['log', 'warn', 'error', 'info', 'debug'], // Записываем все уровни логов
-      lengthThreshold: 10000, // Максимальная длина сообщения
-      stringifyOptions: {
-        // Опции для сериализации объектов
-        maxDepth: 3,
-        maxArrayLength: 100,
-      },
-    }),
-  ],
+  // plugins: [
+  //   getRecordConsolePlugin({
+  //     // Опции для записи консольных логов
+  //     level: ['log', 'warn', 'error', 'info', 'debug'], // Записываем все уровни логов
+  //     lengthThreshold: 10000, // Максимальная длина сообщения
+  //     stringifyOptions: {
+  //       // Опции для сериализации объектов
+  //       maxDepth: 3,
+  //       maxArrayLength: 100,
+  //     },
+  //   }),
+  // ],
 });
 
 // this function will send events to the backend and reset the events array
@@ -152,16 +147,9 @@ function save() {
     }
   }, 100);
   
-  // Подсчитываем типы событий для отладки
-  const eventTypes = events.reduce((acc, event) => {
-    acc[event.type] = (acc[event.type] || 0) + 1;
-    return acc;
-  }, {});
-  
   console.log('Sending rrweb events to server:', {
     sessionId,
     eventCount: events.length,
-    eventTypes,
     timestamp: new Date().toISOString()
   });
   
@@ -169,12 +157,12 @@ function save() {
   console.log('Page protocol:', window.location.protocol);
   console.log('Target URL protocol: HTTPS (server now supports modern TLS)');
   
-  // Тестовые логи для проверки записи консольных логов
-  console.info('RRWeb console logging is active');
-  console.warn('This is a test warning message');
-  console.error('This is a test error message');
-  console.log('Test log message with timestamp:', new Date().toISOString());
-  console.debug('Debug message for testing');
+  // Тестовые логи отключены для стабильности
+  // console.info('RRWeb console logging is active');
+  // console.warn('This is a test warning message');
+  // console.error('This is a test error message');
+  // console.log('Test log message with timestamp:', new Date().toISOString());
+  // console.debug('Debug message for testing');
 }
 
 // save events every 10 seconds
