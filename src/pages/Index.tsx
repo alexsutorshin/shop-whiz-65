@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { ProductCard } from '@/components/ProductCard';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, Sparkles } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ShoppingBag, Sparkles, Search } from 'lucide-react';
 import phoneImg from '@/assets/phone.jpg';
 import iphoneProMaxImg from '@/assets/iphone-pro-max.jpg';
 import headphonesImg from '@/assets/headphones.jpg';
@@ -53,6 +54,19 @@ const products = [
 ];
 
 const Index = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Фильтрация товаров по поисковому запросу
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return products;
+    }
+    
+    return products.filter(product =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
+
   return (
     <main className="container mx-auto px-4 py-8">
       {/* Hero Section */}
@@ -78,11 +92,45 @@ const Index = () => {
           <h2 className="text-2xl font-bold">Каталог товаров</h2>
         </div>
         
+        {/* Search Input */}
+        <div className="relative mb-8 max-w-md">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          <Input
+            type="text"
+            placeholder="Поиск по названию товара..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
+        {/* Results Count */}
+        {searchQuery && (
+          <div className="mb-6">
+            <p className="text-muted-foreground">
+              Найдено товаров: {filteredProducts.length}
+              {filteredProducts.length !== products.length && ` из ${products.length}`}
+            </p>
+          </div>
+        )}
+        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
+
+        {/* No Results Message */}
+        {searchQuery && filteredProducts.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground text-lg">
+              По запросу "{searchQuery}" ничего не найдено
+            </p>
+            <p className="text-muted-foreground mt-2">
+              Попробуйте изменить поисковый запрос
+            </p>
+          </div>
+        )}
       </section>
     </main>
   );
