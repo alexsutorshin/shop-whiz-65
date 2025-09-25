@@ -8,32 +8,63 @@ import "./index.css";
 createRoot(document.getElementById("root")!).render(<App />);
 
 let events = [];
+let consoleLogs = [];
 // Generate a unique session ID for this visit
 const sessionId = uuidv4();
 
-// Инициализация rrweb (временно отключены консольные логи)
+// Функция для перехвата консольных логов
+function captureConsoleLogs() {
+  const originalConsole = {
+    log: console.log,
+    warn: console.warn,
+    error: console.error,
+    info: console.info,
+    debug: console.debug
+  };
+
+  const logLevels = ['log', 'warn', 'error', 'info', 'debug'];
+  
+  logLevels.forEach(level => {
+    console[level] = function(...args) {
+      // Вызываем оригинальную функцию
+      originalConsole[level].apply(console, args);
+      
+      // Записываем лог для отправки на сервер
+      const logEntry = {
+        level: level,
+        message: args.map(arg => {
+          if (typeof arg === 'object') {
+            try {
+              return JSON.stringify(arg, null, 2);
+            } catch (e) {
+              return String(arg);
+            }
+          }
+          return String(arg);
+        }).join(' '),
+        timestamp: Date.now(),
+        url: window.location.href
+      };
+      
+      consoleLogs.push(logEntry);
+    };
+  });
+}
+
+// Запускаем перехват консольных логов
+captureConsoleLogs();
+
+// Инициализация rrweb
 rrweb.record({
   emit(event) {
     // push event into the events array
     events.push(event);
   },
-  // plugins: [
-  //   getRecordConsolePlugin({
-  //     // Опции для записи консольных логов
-  //     level: ['log', 'warn', 'error', 'info', 'debug'], // Записываем все уровни логов
-  //     lengthThreshold: 10000, // Максимальная длина сообщения
-  //     stringifyOptions: {
-  //       // Опции для сериализации объектов
-  //       maxDepth: 3,
-  //       maxArrayLength: 100,
-  //     },
-  //   }),
-  // ],
 });
 
 // this function will send events to the backend and reset the events array
 function save() {
-  if (events.length === 0) {
+  if (events.length === 0 && consoleLogs.length === 0) {
     return; // Don't send empty requests
   }
 
@@ -42,10 +73,12 @@ function save() {
     metadata: {
       userAgent: navigator.userAgent
     },
-    events: events
+    events: events,
+    consoleLogs: consoleLogs // Добавляем консольные логи
   });
   
   events = []; // Reset events array after sending
+  consoleLogs = []; // Reset console logs array after sending
   
   // Try different approaches to handle CORS issues
   const sendWithNoCors = () => {
@@ -154,6 +187,7 @@ function save() {
   console.log('Sending rrweb events to server:', {
     sessionId,
     eventCount: events.length,
+    consoleLogCount: consoleLogs.length,
     timestamp: new Date().toISOString()
   });
   
@@ -161,12 +195,12 @@ function save() {
   console.log('Page protocol:', window.location.protocol);
   console.log('Target URL protocol: HTTPS (server now supports modern TLS)');
   
-  // Тестовые логи отключены для стабильности
-  // console.info('RRWeb console logging is active');
-  // console.warn('This is a test warning message');
-  // console.error('This is a test error message');
-  // console.log('Test log message with timestamp:', new Date().toISOString());
-  // console.debug('Debug message for testing');
+  // Тестовые логи для проверки перехвата консольных логов
+  console.info('Console logging capture is active');
+  console.warn('This is a test warning message');
+  console.error('This is a test error message');
+  console.log('Test log message with timestamp:', new Date().toISOString());
+  console.debug('Debug message for testing');
 }
 
 // save events every 10 seconds
@@ -174,13 +208,14 @@ setInterval(save, 10 * 1000);
 
 // Also save events when user is about to leave the page
 window.addEventListener('beforeunload', function() {
-  if (events.length > 0) {
+  if (events.length > 0 || consoleLogs.length > 0) {
     const body = JSON.stringify({
       sessionId: sessionId,
       metadata: {
         userAgent: navigator.userAgent
       },
-      events: events
+      events: events,
+      consoleLogs: consoleLogs
     });
     
     // Use sendBeacon for reliable delivery on page unload
