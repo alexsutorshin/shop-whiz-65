@@ -65,12 +65,13 @@ function captureSystemErrors() {
     return originalFetch.apply(this, args)
       .then(response => {
         if (!response.ok) {
+          // Логируем ошибку с правильным статусом
           console.error('Fetch failed:', response.status, response.statusText, 'URL:', url);
         }
         return response;
       })
       .catch(error => {
-        // Логируем ошибку fetch
+        // Логируем ошибку fetch (сетевые ошибки, CORS, etc.)
         console.error('Fetch error:', error.message, 'URL:', url);
         throw error;
       });
@@ -95,6 +96,24 @@ function captureSystemErrors() {
   window.addEventListener('error', (event) => {
     console.error('Global error:', event.error?.message || event.message, 'File:', event.filename, 'Line:', event.lineno);
   });
+
+  // Перехват системных сообщений браузера (включая 401 ошибки)
+  const originalConsoleError = console.error;
+  console.error = function(...args) {
+    // Вызываем оригинальную функцию
+    originalConsoleError.apply(console, args);
+    
+    // Проверяем, является ли это системным сообщением браузера
+    const message = args.join(' ');
+    if (message.includes('Failed to load resource') || 
+        message.includes('401 (Unauthorized)') ||
+        message.includes('403 (Forbidden)') ||
+        message.includes('404 (Not Found)') ||
+        message.includes('500 (Internal Server Error)')) {
+      // Логируем системное сообщение как нашу ошибку
+      console.error('System error captured:', message);
+    }
+  };
 
   // Перехват необработанных промисов
   window.addEventListener('unhandledrejection', (event) => {
