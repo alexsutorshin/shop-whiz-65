@@ -42,7 +42,8 @@ function captureConsoleLogs() {
           return String(arg);
         }).join(' '),
         timestamp: Date.now(),
-        url: window.location.href
+        url: window.location.href,
+        sessionId: sessionId // Добавляем sessionId для отладки
       };
       
       consoleLogs.push(logEntry);
