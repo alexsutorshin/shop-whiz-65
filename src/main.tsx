@@ -47,11 +47,13 @@ function captureConsoleLogs() {
       };
       
       consoleLogs.push(logEntry);
-      console.log(`[CAPTURE] Log captured: ${level} - ${logEntry.message.substring(0, 50)}...`);
+      // НЕ используем console.log здесь, чтобы избежать рекурсии!
+      // console.log(`[CAPTURE] Log captured: ${level} - ${logEntry.message.substring(0, 50)}...`);
     };
   });
   
-  console.log('[CAPTURE] Console log capture initialized');
+  // НЕ используем console.log здесь, чтобы избежать рекурсии!
+  // console.log('[CAPTURE] Console log capture initialized');
 }
 
 // Запускаем перехват консольных логов
@@ -205,8 +207,8 @@ function save() {
   console.log('Test log message with timestamp:', new Date().toISOString());
   console.debug('Debug message for testing');
   
-  // Отладочная информация о перехваченных логах
-  console.log('Current consoleLogs count:', consoleLogs.length);
+  // Отладочная информация о перехваченных логах (отключено для избежания рекурсии)
+  // console.log('Current consoleLogs count:', consoleLogs.length);
 }
 
 // save events every 10 seconds
@@ -245,7 +247,8 @@ document.addEventListener('visibilitychange', function() {
   }
 });
 
-// Тестовые логи для проверки перехвата (выполняются после настройки перехвата)
+// Тестовые логи отключены для избежания рекурсии
+/*
 setTimeout(() => {
   console.log('=== TESTING CONSOLE LOG CAPTURE ===');
   console.info('Test info message after capture setup');
@@ -255,3 +258,4 @@ setTimeout(() => {
   console.log('Test log message after capture setup');
   console.log('=== END TESTING ===');
 }, 1000);
+*/
