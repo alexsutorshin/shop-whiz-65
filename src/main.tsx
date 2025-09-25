@@ -98,6 +98,10 @@ function save() {
     consoleLogs: consoleLogs // Добавляем консольные логи
   });
   
+  // Отладочная информация о payload
+  console.log('Payload size:', body.length, 'bytes');
+  console.log('Console logs sample:', consoleLogs.slice(0, 2)); // Показываем первые 2 лога
+  
   events = []; // Reset events array after sending
   consoleLogs = []; // Reset console logs array after sending
   
@@ -110,7 +114,7 @@ function save() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-ingest-token': 'change_me'
+        'x-ingest-token': 'change_me' // TODO: Обновить на правильный токен
       },
       body: body,
       mode: 'no-cors', // This bypasses CORS but we won't get response details
@@ -132,7 +136,7 @@ function save() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-ingest-token': 'change_me'
+        'x-ingest-token': 'change_me' // TODO: Обновить на правильный токен
       },
       body: body,
       mode: 'cors',
