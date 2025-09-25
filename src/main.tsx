@@ -81,6 +81,14 @@ function save() {
     return; // Don't send empty requests
   }
 
+  // Отладочная информация ДО сброса массивов
+  console.log('Sending rrweb events to server:', {
+    sessionId,
+    eventCount: events.length,
+    consoleLogCount: consoleLogs.length,
+    timestamp: new Date().toISOString()
+  });
+  
   const body = JSON.stringify({
     sessionId: sessionId,
     metadata: {
@@ -197,13 +205,6 @@ function save() {
     }
   }, 100);
   
-  console.log('Sending rrweb events to server:', {
-    sessionId,
-    eventCount: events.length,
-    consoleLogCount: consoleLogs.length,
-    timestamp: new Date().toISOString()
-  });
-  
   // Log current page protocol for debugging
   console.log('Page protocol:', window.location.protocol);
   console.log('Target URL protocol: HTTPS (server now supports modern TLS)');
@@ -214,9 +215,6 @@ function save() {
   console.error('This is a test error message');
   console.log('Test log message with timestamp:', new Date().toISOString());
   console.debug('Debug message for testing');
-  
-  // Отладочная информация о перехваченных логах
-  console.log('Current consoleLogs count:', consoleLogs.length);
 }
 
 // save events every 10 seconds
