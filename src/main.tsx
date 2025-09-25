@@ -47,8 +47,11 @@ function captureConsoleLogs() {
       };
       
       consoleLogs.push(logEntry);
+      console.log(`[CAPTURE] Log captured: ${level} - ${logEntry.message.substring(0, 50)}...`);
     };
   });
+  
+  console.log('[CAPTURE] Console log capture initialized');
 }
 
 // Запускаем перехват консольных логов
@@ -201,6 +204,9 @@ function save() {
   console.error('This is a test error message');
   console.log('Test log message with timestamp:', new Date().toISOString());
   console.debug('Debug message for testing');
+  
+  // Отладочная информация о перехваченных логах
+  console.log('Current consoleLogs count:', consoleLogs.length);
 }
 
 // save events every 10 seconds
@@ -238,3 +244,14 @@ document.addEventListener('visibilitychange', function() {
     save();
   }
 });
+
+// Тестовые логи для проверки перехвата (выполняются после настройки перехвата)
+setTimeout(() => {
+  console.log('=== TESTING CONSOLE LOG CAPTURE ===');
+  console.info('Test info message after capture setup');
+  console.warn('Test warning message after capture setup');
+  console.error('Test error message after capture setup');
+  console.debug('Test debug message after capture setup');
+  console.log('Test log message after capture setup');
+  console.log('=== END TESTING ===');
+}, 1000);
