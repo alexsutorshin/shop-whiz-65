@@ -61,10 +61,17 @@ function captureSystemErrors() {
   // Перехват fetch ошибок
   const originalFetch = window.fetch;
   window.fetch = function(...args) {
+    const url = args[0];
     return originalFetch.apply(this, args)
+      .then(response => {
+        if (!response.ok) {
+          console.error('Fetch failed:', response.status, response.statusText, 'URL:', url);
+        }
+        return response;
+      })
       .catch(error => {
         // Логируем ошибку fetch
-        console.error('Fetch error:', error.message, 'URL:', args[0]);
+        console.error('Fetch error:', error.message, 'URL:', url);
         throw error;
       });
   };
@@ -108,6 +115,22 @@ function captureSystemErrors() {
       console.error('Network fetch error:', event.reason.message);
     }
   });
+
+  // Перехват ошибок через Performance API
+  if (window.performance && window.performance.getEntriesByType) {
+    const observer = new PerformanceObserver((list) => {
+      list.getEntries().forEach((entry) => {
+        if (entry.entryType === 'resource') {
+          const resourceEntry = entry as PerformanceResourceTiming;
+          if (resourceEntry.transferSize === 0 && resourceEntry.decodedBodySize === 0) {
+            // Возможная ошибка загрузки ресурса
+            console.error('Resource load failed:', resourceEntry.name, 'Status:', resourceEntry.responseStatus);
+          }
+        }
+      });
+    });
+    observer.observe({ entryTypes: ['resource'] });
+  }
 
   console.log('[SYSTEM] System error capture initialized');
 }
