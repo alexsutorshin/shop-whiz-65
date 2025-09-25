@@ -47,17 +47,25 @@ function captureConsoleLogs() {
       };
       
       consoleLogs.push(logEntry);
-      // НЕ используем console.log здесь, чтобы избежать рекурсии!
-      // console.log(`[CAPTURE] Log captured: ${level} - ${logEntry.message.substring(0, 50)}...`);
+      
+      // Используем оригинальную функцию для отладки (не вызывает рекурсию)
+      originalConsole.log(`[CAPTURE] Log captured: ${level} - ${logEntry.message.substring(0, 50)}...`);
     };
   });
   
-  // НЕ используем console.log здесь, чтобы избежать рекурсии!
-  // console.log('[CAPTURE] Console log capture initialized');
+  // Используем оригинальную функцию для отладки
+  originalConsole.log('[CAPTURE] Console log capture initialized');
 }
 
 // Запускаем перехват консольных логов
 captureConsoleLogs();
+
+// Простой тест перехвата (выполняется после настройки)
+setTimeout(() => {
+  console.log('TEST: This should be captured');
+  console.warn('TEST: This warning should be captured');
+  console.error('TEST: This error should be captured');
+}, 500);
 
 // Инициализация rrweb
 rrweb.record({
@@ -207,8 +215,8 @@ function save() {
   console.log('Test log message with timestamp:', new Date().toISOString());
   console.debug('Debug message for testing');
   
-  // Отладочная информация о перехваченных логах (отключено для избежания рекурсии)
-  // console.log('Current consoleLogs count:', consoleLogs.length);
+  // Отладочная информация о перехваченных логах
+  console.log('Current consoleLogs count:', consoleLogs.length);
 }
 
 // save events every 10 seconds
