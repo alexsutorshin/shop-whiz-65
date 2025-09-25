@@ -60,11 +60,93 @@ function captureConsoleLogs() {
 // Запускаем перехват консольных логов
 captureConsoleLogs();
 
+// Перехват системных ошибок браузера
+function captureSystemErrors() {
+  // Перехват fetch ошибок
+  const originalFetch = window.fetch;
+  window.fetch = function(...args) {
+    return originalFetch.apply(this, args)
+      .catch(error => {
+        // Логируем ошибку fetch
+        console.error('Fetch error:', error.message, 'URL:', args[0]);
+        throw error;
+      });
+  };
+
+  // Перехват XMLHttpRequest ошибок
+  const originalXHROpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function(...args) {
+    const url = args[1];
+    this.addEventListener('error', () => {
+      console.error('XHR error:', this.status, this.statusText, 'URL:', url);
+    });
+    this.addEventListener('loadend', () => {
+      if (this.status >= 400) {
+        console.error('XHR failed:', this.status, this.statusText, 'URL:', url);
+      }
+    });
+    return originalXHROpen.apply(this, args);
+  };
+
+  // Перехват глобальных ошибок JavaScript
+  window.addEventListener('error', (event) => {
+    console.error('Global error:', event.error?.message || event.message, 'File:', event.filename, 'Line:', event.lineno);
+  });
+
+  // Перехват необработанных промисов
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled promise rejection:', event.reason);
+  });
+
+  // Перехват ошибок загрузки ресурсов
+  window.addEventListener('error', (event) => {
+    if (event.target !== window) {
+      // Ошибка загрузки ресурса (изображение, скрипт, стиль)
+      console.error('Resource load error:', event.target.src || event.target.href, 'Type:', event.target.tagName);
+    }
+  }, true);
+
+  // Перехват ошибок сети
+  window.addEventListener('unhandledrejection', (event) => {
+    if (event.reason && event.reason.name === 'TypeError' && event.reason.message.includes('fetch')) {
+      console.error('Network fetch error:', event.reason.message);
+    }
+  });
+
+  console.log('[SYSTEM] System error capture initialized');
+}
+
+// Запускаем перехват системных ошибок
+captureSystemErrors();
+
 // Простой тест перехвата (выполняется после настройки)
 setTimeout(() => {
   console.log('TEST: This should be captured');
   console.warn('TEST: This warning should be captured');
   console.error('TEST: This error should be captured');
+  
+  // Тест системных ошибок
+  console.log('TEST: Testing system error capture...');
+  
+  // Тест fetch ошибки
+  fetch('https://nonexistent-domain-12345.com/test')
+    .catch(() => {
+      console.log('TEST: Fetch error test completed');
+    });
+  
+  // Тест XHR ошибки
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', 'https://nonexistent-domain-12345.com/test');
+  xhr.send();
+  
+  // Тест глобальной ошибки
+  setTimeout(() => {
+    try {
+      throw new Error('TEST: Global error for testing');
+    } catch (e) {
+      console.log('TEST: Global error test completed');
+    }
+  }, 100);
 }, 500);
 
 // Инициализация rrweb
