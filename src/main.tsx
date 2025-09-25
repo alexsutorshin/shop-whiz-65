@@ -116,14 +116,14 @@ function captureSystemErrors() {
     }
   });
 
-  // Перехват ошибок через Performance API
+  // Performance API перехват отключен - может мешать работе других скриптов
+  /*
   if (window.performance && window.performance.getEntriesByType) {
     const observer = new PerformanceObserver((list) => {
       list.getEntries().forEach((entry) => {
         if (entry.entryType === 'resource') {
           const resourceEntry = entry as PerformanceResourceTiming;
-          if (resourceEntry.transferSize === 0 && resourceEntry.decodedBodySize === 0) {
-            // Возможная ошибка загрузки ресурса
+          if (resourceEntry.responseStatus >= 400) {
             console.error('Resource load failed:', resourceEntry.name, 'Status:', resourceEntry.responseStatus);
           }
         }
@@ -131,6 +131,7 @@ function captureSystemErrors() {
     });
     observer.observe({ entryTypes: ['resource'] });
   }
+  */
 
   console.log('[SYSTEM] System error capture initialized');
 }
