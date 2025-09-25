@@ -5,8 +5,7 @@ import { getRecordConsolePlugin } from 'rrweb/lib/plugins/console-record';
 import { v4 as uuidv4 } from 'uuid';
 import "./index.css";
 
-createRoot(document.getElementById("root")!).render(<App />);
-
+// НАСТРОЙКА ПЕРЕХВАТА В САМОМ НАЧАЛЕ - ДО ВСЕХ ОПЕРАЦИЙ
 let events = [];
 let consoleLogs = [];
 // Generate a unique session ID for this visit
@@ -56,9 +55,6 @@ function captureConsoleLogs() {
   // Используем оригинальную функцию для отладки
   originalConsole.log('[CAPTURE] Console log capture initialized');
 }
-
-// Запускаем перехват консольных логов
-captureConsoleLogs();
 
 // Перехват системных ошибок браузера
 function captureSystemErrors() {
@@ -116,38 +112,12 @@ function captureSystemErrors() {
   console.log('[SYSTEM] System error capture initialized');
 }
 
-// Запускаем перехват системных ошибок
+// ЗАПУСКАЕМ ПЕРЕХВАТ СРАЗУ - ДО ВСЕГО ОСТАЛЬНОГО
+captureConsoleLogs();
 captureSystemErrors();
 
-// Простой тест перехвата (выполняется после настройки)
-setTimeout(() => {
-  console.log('TEST: This should be captured');
-  console.warn('TEST: This warning should be captured');
-  console.error('TEST: This error should be captured');
-  
-  // Тест системных ошибок
-  console.log('TEST: Testing system error capture...');
-  
-  // Тест fetch ошибки
-  fetch('https://nonexistent-domain-12345.com/test')
-    .catch(() => {
-      console.log('TEST: Fetch error test completed');
-    });
-  
-  // Тест XHR ошибки
-  const xhr = new XMLHttpRequest();
-  xhr.open('GET', 'https://nonexistent-domain-12345.com/test');
-  xhr.send();
-  
-  // Тест глобальной ошибки
-  setTimeout(() => {
-    try {
-      throw new Error('TEST: Global error for testing');
-    } catch (e) {
-      console.log('TEST: Global error test completed');
-    }
-  }, 100);
-}, 500);
+createRoot(document.getElementById("root")!).render(<App />);
+
 
 // Инициализация rrweb
 rrweb.record({
