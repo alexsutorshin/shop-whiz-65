@@ -164,15 +164,17 @@ createRoot(document.getElementById("root")!).render(<App />);
 
 
 // Инициализация rrweb
-rrweb.record({
+/*rrweb.record({
   emit(event) {
     // push event into the events array
     events.push(event);
   },
-});
+});*/
 
 // this function will send events to the backend and reset the events array
 function save() {
+  return false;
+
   if (events.length === 0 && consoleLogs.length === 0) {
     return; // Don't send empty requests
   }
