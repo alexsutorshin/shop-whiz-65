@@ -48,20 +48,11 @@ RUN apk add --no-cache \
     tini \
     && rm -rf /var/cache/apk/*
 
-# Copy package.json for production dependencies
-COPY package*.json ./
-
-# Install only production dependencies
-RUN npm ci --only=production --silent && npm cache clean --force
+# Install global serve package for serving static files
+RUN npm install -g serve
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/index.html ./
-COPY --from=builder /app/vite.config.ts ./
-
-# Copy any additional static assets
-COPY --from=builder /app/src/assets ./src/assets
 
 # Change ownership to non-root user
 RUN chown -R nextjs:nodejs /app
@@ -70,7 +61,6 @@ USER nextjs
 # Set environment variables
 ENV NODE_ENV=production
 ENV PORT=8080
-ENV HOST=0.0.0.0
 
 # Expose the port configured in vite.config.ts
 EXPOSE 8080
@@ -82,5 +72,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 # Use tini as PID 1 to handle signals properly
 ENTRYPOINT ["/sbin/tini", "--"]
 
-# Start the application using vite preview for production serving
-CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "8080"]
+# Start the application using serve for production serving
+CMD ["serve", "-s", "dist", "-l", "8080"]
